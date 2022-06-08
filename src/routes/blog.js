@@ -42,9 +42,6 @@ router.get("/blog/:id",authBasic(), authenticateToken , basicGetBlogValidator,as
       if (user["title"] === req.body.title) {
         return 1;
       }
-      else{
-        return res.send("Not Found")
-      }
     });
     redisClient.setEx('getblog', DEFAULT_EXPIRATION,JSON.stringify(allPost))
     res.status(200).send(allPost);
@@ -113,7 +110,7 @@ router.put("/updateBlog/:id", authBasic("basic"),authenticateToken, basicBlogVal
       });
     })
     .catch((err) => {
-      logger.error.log('error','Error: ',err)
+      logger.blog_logger.log('error','Error: ',err)
       res.status(400).send(err);
     });
 });
@@ -148,7 +145,7 @@ router.delete("/deleteBlog/:id", authBasic("basic"), authenticateToken, basicDel
       });
     })
     .catch((err) => {
-      logger.error.log('error','Error: ',err)
+      logger.blog_logger.log('error','Error: ',err)
       res.status(400).send(err);
     });
 });

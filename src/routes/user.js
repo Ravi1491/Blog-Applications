@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { authenticateToken } = require("../middleware/jwtToken");
 const {
   signupSchemaValidator,
   loginSchemaValidator,
@@ -38,7 +39,6 @@ router.post("/signup", signupSchemaValidator, async (req, res) => {
       return res.json({ message: "User with email already exist " });
     }
     try {
-      const hashedPassword = await bcrypt.hash(password, 10);
       if (role === "basic") {
         await blog.create({
           id,
@@ -49,12 +49,12 @@ router.post("/signup", signupSchemaValidator, async (req, res) => {
         id,
         name,
         email,
-        password: hashedPassword,
+        password,
         role,
       });
       res.status(200).send(`${name} - Successfully Registered`);
     } catch {
-      logger.error.log('error','Error: ',err)
+      logger.blog_logger.log('error','Error: ',err)
       res.status(500).send(err);
     }
   }
@@ -80,7 +80,7 @@ router.post("/login", loginSchemaValidator, async (req, res) => {
   const userWithEmail = await users
     .findOne({ where: { email } })
     .catch((err) => {
-      logger.error.log('error','Error: ',err)
+      logger.blog_logger.log('error','Error: ',err)
       res.status(400).send(err);
     });
   try {
@@ -93,7 +93,6 @@ router.post("/login", loginSchemaValidator, async (req, res) => {
       await users.update(
         {
           refreshtoken: refreshToken,
-          accesstoken: accessToken,
         },
         { where: { id: userWithEmail.id } }
       );
@@ -128,14 +127,14 @@ router.put("/changePass",changePasswordSchemaValidator, async function (req, res
       );
       res.status(200).send(`${userWithEmail.name} - Password changed Successfully `);
     } catch {
-      logger.error.log('error','Error: ',err)
+      logger.blog_logger.log('error','Error: ',err)
       res.status(500).send(err);
     }
   }
 );
 
 // logout
-router.delete("/logout/:id", async (req, res) => {
+router.delete("/logout/:id", authenticateToken , async (req, res) => {
   const id = req.params.id;
   const user_data = await users.findOne({ where: { id } });
   if (user_data.refreshtoken) {

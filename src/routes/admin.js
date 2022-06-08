@@ -58,65 +58,36 @@ router.put("/updateUser/:id", authAdmin(), authenticateToken, adminUpdateUserVal
       name: req.body.name,
       email: req.body.email,
     };
-    let { id, name, email } = data;
-    users.update(data, { where: { id: update_id } })
+    await users.update(data, { where: { id: update_id } })
       .then((value) => {
-        res.status(200).json({
-          message: `update successfully data of user ${name}`,
-          users: value,
-        });
+        blog.update(data, { where: { id: update_id } })
+        res.status(200).send(`Data get Updated of ${data.name} `)
       })
       .catch((err) => {
-        logger.error.log('error','Error: ',err)
+        logger.blog_logger.log('error',"Error: "+err)
         res.status(400).send(err);
       });
+    } else {
+      res.status(403).send("you cannot delete other Admin user ");
+    }
+  });
 
-    blog.update(data, { where: { id: update_id } })
-      .then((value) => {
-        res.status(200).json({
-          message: `update successfully blog of user ${name}`,
-          users: value,
-        });
-      })
-      .catch((err) => {
-        logger.error.log('error','Error: ',err)
-        res.status(400).send(err);
-      });
-  } else {
-    res.status(403).send("you cannot delete other Admin user ");
-  }
-});
-
-//  admin delete non-admin data
-router.delete("/deleteUser/:id", authAdmin(), authenticateToken, admindeleteUserValidator, async (req, res) => {
+  //  admin delete non-admin data
+  router.delete("/deleteUser/:id", authAdmin(), authenticateToken, admindeleteUserValidator, async (req, res) => {
   const delete_id = req.body.id;
   let finduser = await users.findOne({ where: { id: delete_id } });
   finduser = finduser.toJSON();
-
+  
   if (finduser.role !== "admin") {
     await users.destroy({ where: { id: delete_id } })
-      .then((data) => {
-        res.status(200).json({
-          message: "User Delete successfully",
-          users: data,
-        });
-      })
-      .catch((err) => {
-        logger.error.log('error','Error: ',err)
-        res.status(400).send(err);
-      });
-
-    await blog.destroy({ where: { id: delete_id } })
-      .then((data) => {
-        res.status(200).json({
-          message: "blog Delete successfully",
-          blog: data,
-        });
-      })
-      .catch((err) => {
-        logger.error.log('error','Error: ',err)
-        res.status(400).send(err);
-      });
+    .then((value) => {
+      blog.destroy({ where: { id: delete_id } })
+      res.status(200).send(`Data get Deleted of ${finduser.name}`)
+    })
+    .catch((err) => {
+      logger.blog_logger.log('error',"Error: "+err)
+      res.status(400).send(err);
+    });
   } else {
     res.send("you cannot delete other Admin user ");
   }
