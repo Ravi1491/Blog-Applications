@@ -16,7 +16,6 @@ const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use("/", require("./src/routes/routes"));
-require('./utils/sendEmail')
 
 app.listen(3000, () => {
   console.log("Listening on port 3000");
