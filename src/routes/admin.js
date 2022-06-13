@@ -7,12 +7,12 @@ const logger = require('../../utils/logger')
 const blog = require("../models").blog;
 const users = require("../models").users;
 const redisClient = require("../../utils/redis.js");
-const rateLimiter = require('../middleware/rateLimiter')
+const {customRedisRateLimiter} = require('../middleware/rateLimiter')
 
 const DEFAULT_EXPIRATION = 3600;
 
 // admin get the list of all basic users
-router.get("/getUsers/:id", authAdmin(), authenticateToken, rateLimiter, async (req, res) => {
+router.get("/getUsers/:id", authAdmin(), authenticateToken, customRedisRateLimiter({ secondsWindow: 5, allowedHits: 1 }) , async (req, res) => {
   let data = await redisClient.get("getUsers");
 
   if (data) {
@@ -30,7 +30,7 @@ router.get("/getUsers/:id", authAdmin(), authenticateToken, rateLimiter, async (
 });
 
 // admin - get all blogs
-router.get("/getallblog/:id", authAdmin(), authenticateToken, rateLimiter , async (req, res) => {
+router.get("/getallblog/:id", authAdmin(), authenticateToken , customRedisRateLimiter({ secondsWindow: 5, allowedHits: 1 }) , async (req, res) => {
   let data = await redisClient.get("getallblog");
 
   if (data) {
@@ -48,7 +48,7 @@ router.get("/getallblog/:id", authAdmin(), authenticateToken, rateLimiter , asyn
 });
 
 // admin update non-admin data
-router.put("/updateUser/:id", authAdmin(), authenticateToken, adminUpdateUserValidator, rateLimiter, async (req, res) => {
+router.put("/updateUser/:id", authAdmin(), authenticateToken, customRedisRateLimiter({ secondsWindow: 5, allowedHits: 1 }) , adminUpdateUserValidator, async (req, res) => {
   const update_id = req.body.id;
   let finduser = await users.findOne({ where: { id: update_id } });
   finduser = finduser.toJSON();
@@ -74,7 +74,7 @@ router.put("/updateUser/:id", authAdmin(), authenticateToken, adminUpdateUserVal
   });
 
   //  admin delete non-admin data
-  router.delete("/deleteUser/:id", authAdmin(), authenticateToken, admindeleteUserValidator, rateLimiter, async (req, res) => {
+  router.delete("/deleteUser/:id", authAdmin(), authenticateToken, admindeleteUserValidator, customRedisRateLimiter({ secondsWindow: 5, allowedHits: 1 }) , async (req, res) => {
   const delete_id = req.body.id;
   let finduser = await users.findOne({ where: { id: delete_id } });
   finduser = finduser.toJSON();
@@ -93,7 +93,5 @@ router.put("/updateUser/:id", authAdmin(), authenticateToken, adminUpdateUserVal
     res.send("you cannot delete other Admin user ");
   }
 });
-
-
 
 module.exports = router;
