@@ -12,6 +12,9 @@ const blog = require("../models").blog;
 const users = require("../models").users;
 const { perodicPassChangeEmail } = require("../../utils/sendEmail");
 const { signupEmail } = require('../../utils/sendEmail')
+const logger = require('../../utils/logger')
+const redisClient=require('../../utils/redis.js')
+const DEFAULT_EXPIRATION = 3600;
 
 // generate new access token
 function generateAccessToken(user) {
@@ -46,18 +49,21 @@ router.post("/signup", signupSchemaValidator, async (req, res) => {
           name,
         });
       }
-      await users.create({
+      users.create({
         id,
         name,
         email,
         password,
         role,
+      }).then( async (data) => {
+        const subject = 'Signup'
+        const message = 'Hii Buddy, You have successfully signup on Blog Application. ' 
+        signupEmail(email,subject,message)
+        getusers = await users.findAll({where: {role: 'basic'}});
+        redisClient.setEx("getUsers",DEFAULT_EXPIRATION,JSON.stringify(getusers));
+        res.status(200).send(`${name} - Successfully Registered`);
       });
-      const subject = 'Signup'
-      const message = 'Hii Buddy, You have successfully signup on Blog Application. ' 
-      signupEmail(email,subject,message)
-      res.status(200).send(`${name} - Successfully Registered`);
-    } catch {
+    } catch (err){
       logger.blog_logger.log('error','Error: ',err)
       res.status(500).send(err);
     }

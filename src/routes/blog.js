@@ -67,19 +67,22 @@ router.post("/create/:id", authBasic("basic"), authenticateToken, basicBlogValid
     postarray.push(postobj);
     setPost = JSON.stringify(postarray);
   }
-  await blog.update({
-      blog_post: setPost,
-    },{
-      where: { id: id },
-    })
-    .then((data) => {
-      res.status(200).json({
-        message: "Blog Created successfully",
-        blog: data,
-      });
+  blog.update({
+    blog_post: setPost,
+  },{
+    where: { id: id },
+  })
+  .then( async (data) => {
+      console.log("BLOG ")
+      getBlogs = await blog.findAll();
+      redisClient.setEx("getallblog",DEFAULT_EXPIRATION,JSON.stringify(getBlogs));
+      let onlyBlog = await blog.findOne({where: {id: id}})
+      onlyBlog = onlyBlog.toJSON()
+      redisClient.setEx("blogs",DEFAULT_EXPIRATION,onlyBlog.blog_post);
+      res.status(200).send("Blog Created successfully");
     })
     .catch((err) => {
-      res.send(err);
+      res.send(" Error ");
     });
 });
 
@@ -104,7 +107,9 @@ router.put("/updateBlog/:id", authBasic("basic"),authenticateToken, basicBlogVal
     },{ 
       where: { id: req.params.id } 
     })
-    .then((data) => {
+    .then( async (data) => {
+      getBlogs = await blog.findAll();
+      redisClient.setEx("getallblog",DEFAULT_EXPIRATION,JSON.stringify(getBlogs));
       res.status(200).json({
         message: "Blog updated successfully",
         blog: data,
