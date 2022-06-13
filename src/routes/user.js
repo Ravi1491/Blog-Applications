@@ -31,7 +31,6 @@ router.post("/signup", signupSchemaValidator, async (req, res) => {
     errors.push({ msg: "Password must be at least 6 characters" });
   }
   if (errors.length > 0) {
-    console.log("error");
     res.send(errors);
   } else {
     const ExistUser = await users.findOne({ where: { email } }).catch((err) => {
@@ -157,8 +156,6 @@ router.get('/perodicPassChange' , async (req,res)=>{
   email = data.map( user => {
     user.email
   });
-
-  console.log("Emails = ", email)
  
   if(email){
     const subject = 'Password Exipred'

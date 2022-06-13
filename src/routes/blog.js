@@ -6,11 +6,12 @@ const { basicGetBlogValidator, basicBlogValidator, basicDeleteeBlogValidator } =
 const blog = require("../models").blog;
 const logger = require('../../utils/logger')
 const redisClient=require('../../utils/redis.js')
+const rateLimiter = require('../middleware/rateLimiter')
 
 const DEFAULT_EXPIRATION = 3600
 
 // get all his blog
-router.get("/getblogs/:id", authBasic(), authenticateToken , async (req, res) => {
+router.get("/getblogs/:id", authBasic(), authenticateToken , rateLimiter, async (req, res) => {
   let data = await redisClient.get('blogs');
 
   if(data){
@@ -27,7 +28,7 @@ router.get("/getblogs/:id", authBasic(), authenticateToken , async (req, res) =>
 });
 
 // get his particular blog 
-router.get("/blog/:id",authBasic(), authenticateToken , basicGetBlogValidator,async (req, res) => {
+router.get("/blog/:id",authBasic(), authenticateToken , basicGetBlogValidator, rateLimiter, async (req, res) => {
   let data = await redisClient.get('getblog');
 
   if(data){
@@ -49,7 +50,7 @@ router.get("/blog/:id",authBasic(), authenticateToken , basicGetBlogValidator,as
 });
 
 // User create blog
-router.post("/create/:id", authBasic("basic"), authenticateToken, basicBlogValidator ,async (req, res) => {
+router.post("/create/:id", authBasic("basic"), authenticateToken, basicBlogValidator , rateLimiter, async (req, res) => {
   const id = req.params.id;
   const post_data = await blog.findOne({ where: { id: id } });
   const getEntery = post_data.toJSON();
@@ -83,7 +84,7 @@ router.post("/create/:id", authBasic("basic"), authenticateToken, basicBlogValid
 });
 
 // user can update blog
-router.put("/updateBlog/:id", authBasic("basic"),authenticateToken, basicBlogValidator ,async (req, res) => {
+router.put("/updateBlog/:id", authBasic("basic"),authenticateToken, basicBlogValidator , rateLimiter, async (req, res) => {
   const findPost = await blog.findOne({ where: { id: req.params.id } });
   const postData = findPost.toJSON();
   const getPost = postData.blog_post;
@@ -116,7 +117,7 @@ router.put("/updateBlog/:id", authBasic("basic"),authenticateToken, basicBlogVal
 });
 
 // user delete his blog
-router.delete("/deleteBlog/:id", authBasic("basic"), authenticateToken, basicDeleteeBlogValidator ,async (req, res) => {
+router.delete("/deleteBlog/:id", authBasic("basic"), authenticateToken, basicDeleteeBlogValidator , rateLimiter, async (req, res) => {
   const title = req.body.title;
   let findblog = await blog.findOne({ where: { id: req.params.id } });
   findblog = findblog.toJSON();

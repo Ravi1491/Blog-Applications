@@ -23,7 +23,6 @@ function perodicPassChangeEmail(email, sub, message) {
         if (err) {
           logger.blog_logger.log("error", "Error: " + err);
         } else {
-          console.log("Sent: " + info.response);
           logger.blog_logger.log("info", "Email sent successfully");
         }
       }
@@ -38,7 +37,6 @@ function signupEmail(email, sub, message) {
       if (err) {
         logger.blog_logger.log("error", "Error: " + err);
       } else {
-        console.log("Sent: " + info.response);
         logger.blog_logger.log("info", "Email sent successfully");
       }
     }
