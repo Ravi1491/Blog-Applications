@@ -73,7 +73,6 @@ router.post("/create/:id", authBasic("basic"), authenticateToken, basicBlogValid
     where: { id: id },
   })
   .then( async (data) => {
-      console.log("BLOG ")
       getBlogs = await blog.findAll();
       redisClient.setEx("getallblog",DEFAULT_EXPIRATION,JSON.stringify(getBlogs));
       let onlyBlog = await blog.findOne({where: {id: id}})

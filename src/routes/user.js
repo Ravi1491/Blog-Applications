@@ -14,6 +14,7 @@ const { perodicPassChangeEmail } = require("../../utils/sendEmail");
 const { signupEmail } = require('../../utils/sendEmail')
 const logger = require('../../utils/logger')
 const redisClient=require('../../utils/redis.js')
+const Queue = require('bull')
 const DEFAULT_EXPIRATION = 3600;
 
 // generate new access token
@@ -37,33 +38,43 @@ router.post("/signup", signupSchemaValidator, async (req, res) => {
     res.send(errors);
   } else {
     const ExistUser = await users.findOne({ where: { email } }).catch((err) => {
-      res.send(err);
+      logger.blog_logger.log('error','Error: ',err)
+      res.status(400).send(err);
     });
     if (ExistUser) {
       return res.json({ message: "User with email already exist " });
     }
-    try {
-      if (role === "basic") {
-        await blog.create({
-          id,
-          name,
-        });
-      }
+    try{
       users.create({
         id,
         name,
         email,
         password,
         role,
-      }).then( async (data) => {
-        const subject = 'Signup'
-        const message = 'Hii Buddy, You have successfully signup on Blog Application. ' 
-        signupEmail(email,subject,message)
+      }).then( async (value) => {
+        const sendMailQueue = new Queue("Email");
+        const data = {
+          email: email,
+          subject: 'Signup',
+          message: 'Hii Buddy, You have successfully signup on Blog Application. '
+        }
+  
+        const options = {
+          delay: 60000,
+          attempts: 2
+        }
+  
+        sendMailQueue.add(data,options);
+        sendMailQueue.process(async (job) =>{
+          console.log("Inside queue", sendMailQueue)
+          return await signupEmail(job.data.email,job.data.subject,job.data.message)
+        }) 
+        
         getusers = await users.findAll({where: {role: 'basic'}});
         redisClient.setEx("getUsers",DEFAULT_EXPIRATION,JSON.stringify(getusers));
         res.status(200).send(`${name} - Successfully Registered`);
-      });
-    } catch (err){
+      })
+    }catch (err){
       logger.blog_logger.log('error','Error: ',err)
       res.status(500).send(err);
     }

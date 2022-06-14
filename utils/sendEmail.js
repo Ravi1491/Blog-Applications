@@ -31,9 +31,15 @@ function perodicPassChangeEmail(email, sub, message) {
 }
 
 function signupEmail(email, sub, message) {
-  const mail = transporter.sendMail(
-    messageOptions(email, sub, message),
-    function (err, info) {
+  console.log("inside mail")
+  let mails = {
+    from: process.env.SENDER_EMAIL,
+    to: email,
+    subject: sub,
+    text: message
+  };
+
+  transporter.sendMail(mails, (err, info) => {
       if (err) {
         logger.blog_logger.log("error", "Error: " + err);
       } else {
@@ -41,6 +47,8 @@ function signupEmail(email, sub, message) {
       }
     }
   );
+  const date = new Date();
+  console.log(" mail sent", date)
 }
 
 module.exports = { perodicPassChangeEmail, signupEmail };
