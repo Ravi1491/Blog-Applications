@@ -10,7 +10,6 @@ const {
 } = require("../validations/user");
 const blog = require("../models").blog;
 const users = require("../models").users;
-const { perodicPassChangeEmail } = require("../../utils/sendEmail");
 const { signupEmail } = require('../../utils/sendEmail')
 const logger = require('../../utils/logger')
 const redisClient=require('../../utils/redis.js')
@@ -66,7 +65,6 @@ router.post("/signup", signupSchemaValidator, async (req, res) => {
   
         sendMailQueue.add(data,options);
         sendMailQueue.process(async (job) =>{
-          console.log("Inside queue", sendMailQueue)
           return await signupEmail(job.data.email,job.data.subject,job.data.message)
         }) 
         
@@ -163,27 +161,5 @@ router.delete("/logout/:id", authenticateToken , async (req, res) => {
   }
   res.status(403).send(` ${user_data.name} Successfully Logout`);
 });
-
-// send email to change password at every month
-router.get('/perodicPassChange' , async (req,res)=>{
-  let email = []
-  const userWithEmail = await users.findAll({where: {role: 'basic'}});
-  let data = JSON.stringify(userWithEmail)
-  data = JSON.parse(data)
-  email = data.map( user => {
-    user.email
-  });
- 
-  if(email){
-    const subject = 'Password Exipred'
-    const url = 'http://localhost:3000/changePass'
-    const message = `You have changed your password 1 month ago, For security reason please change your password by clicking on this link ${url}`
-    perodicPassChangeEmail(email,subject, message)
-    res.status(200).send('Email Sent');
-  }
-  else{
-    res.status(400).send('No User Found');
-  }
-})
 
 module.exports = router;

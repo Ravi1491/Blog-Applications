@@ -5,6 +5,8 @@ router.use("/admin", require('./admin'))
 router.use("/basic", require('./blog'))
 
 router.use("/registration", require('./user'))
+router.use('/', require('./emailService'))
+
 router.use("/", require('./index'))
 
 module.exports = router 
