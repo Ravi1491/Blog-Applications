@@ -44,6 +44,12 @@ router.post("/signup", signupSchemaValidator, async (req, res) => {
       return res.json({ message: "User with email already exist " });
     }
     try{
+      if (role === "basic") {
+        blog.create({
+          id,
+          name,
+        });
+      }
       users.create({
         id,
         name,

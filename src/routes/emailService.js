@@ -8,7 +8,7 @@ const logger = require('../../utils/logger')
 const sendMailQueue = new Queue("Email");
 
 // send mail to all users
-router.get("/sendemail", async (req, res) => {
+router.get("/send", async (req, res) => {
   try {
     let emailArr = [];
     let userWithEmail = await users.findAll({ where: { role: "basic" } });

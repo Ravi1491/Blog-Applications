@@ -1,12 +1,20 @@
-const express = require('express')
+const express = require("express");
 const router = express.Router();
 
-router.use("/admin", require('./admin'))
-router.use("/basic", require('./blog'))
+router.use("/admin", require("./admin"));
+router.use("/basic", require("./blog"));
 
-router.use("/registration", require('./user'))
-router.use('/', require('./emailService'))
+router.use("/registration", require("./user"));
+router.use("/email", require("./emailService"));
 
-router.use("/", require('./index'))
+router.use('/graphql', require('./graphql/index'))
 
-module.exports = router 
+router.get("/home", (req, res) => {
+  res.status(200).send("HOME PAGE");
+});
+
+router.get("/changepass", (req, res) => {
+  res.status(200).send("Change Password PAGE");
+});
+
+module.exports = router;
