@@ -43,7 +43,8 @@ const changePasswordSchemaValidator = (req, res, next) => {
       minDomainSegments: 2,
       tlds: { allow: ["com", "in"] },
     }),
-    newpassword: joi.string().required(),
+    oldPassword: joi.string().required(),
+    newPassword: joi.string().required(),
   }).unknown(false);
 
   const { error } = schema.validate(req.body, { aboutEarly: false });

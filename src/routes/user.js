@@ -136,14 +136,17 @@ router.post("/login", loginSchemaValidator, async (req, res) => {
 
 // changing password
 router.put("/changePass",changePasswordSchemaValidator, async function (req, res) {
-    const { email, newpassword } = req.body;
+    const { email, oldPassword ,newPassword } = req.body;
     const userWithEmail = await users
       .findOne({ where: { email } })
       .catch((err) => {
-        console.log("error ", err);
+        logger.blog_logger.log('error',err)
       });
+    if (! await bcrypt.compare(oldPassword, userWithEmail.password)) {
+      res.status(400).send(`${userWithEmail.name} - Password does not match `);
+    }
     try {
-      const hashedPassword = await bcrypt.hash(newpassword, 10);
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
       await users.update({
           password: hashedPassword,
         },{
