@@ -2,7 +2,7 @@
 // admin get the list of all basic users
 /**
  * @swagger
- * /admin/getUsers/{id}:
+ * /admin/getAllUser/{id}:
  *   get:
  *     summary: Returns the list of all basic users
  *     parameters:
@@ -28,7 +28,7 @@
 // admin - get all blogs
 /**
  * @swagger
- * /admin/getallblog/{id}:
+ * /admin/getAllBlogs/{id}:
  *   get:
  *     summary: Returns the list of all basic users blog
  *     parameters:

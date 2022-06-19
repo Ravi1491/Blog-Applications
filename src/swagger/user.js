@@ -42,7 +42,7 @@
  *      content:
  *        application/json:
  *          schema:
- *            $ref: '#components/schemas/login'
+ *            $ref: '#components/schemas/changePassword'
  *    responses:
  *      '200':
  *        description: User successfully changed password
