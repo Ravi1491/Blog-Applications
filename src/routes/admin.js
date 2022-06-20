@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { authAdmin } = require("../middleware/auth");
+const { authRole } = require("../middleware/roleAccess");
 const { authenticateToken } = require("../middleware/jwtToken");
-const { adminUpdateUserValidator, admindeleteUserValidator } = require("../validations/user");
+const { userSchemaValidator } = require("../validations/schemaValidator");
 const logger = require('../../utils/logger')
 const blog = require("../models").blog;
 const users = require("../models").users;
@@ -12,85 +12,108 @@ const {customRedisRateLimiter} = require('../middleware/rateLimiter')
 const DEFAULT_EXPIRATION = 3600;
 
 // admin get the list of all basic users
-router.get("/getUsers/:id", authAdmin(), authenticateToken, customRedisRateLimiter({ secondsWindow: 5, allowedHits: 1 }) , async (req, res) => {
-  let data = await redisClient.get("getUsers");
+router.get("/getAllUser/:id", authRole('admin'), authenticateToken, customRedisRateLimiter({ secondsWindow: 5, allowedHits: 1 }), async (req, res) => {
+  try{
+    let data = await redisClient.get("getUsers");
 
-  if (data) {
-    return res.json(JSON.parse(data));
-  } else {
-    await users.findAll({ where: { role: "basic" } })
+    if (data) {
+      return res.json(JSON.parse(data));
+    } 
+    else {
+      await users.findAll({ where: { 
+        role: "basic" 
+      }})
       .then((user) => {
-        redisClient.setEx("getUsers",DEFAULT_EXPIRATION,JSON.stringify(user));
+        redisClient.setEx("getAllUser",DEFAULT_EXPIRATION,JSON.stringify(user));
         res.status(200).send(user);
       })
-      .catch((err) => {
-        res.status(400).send(err);
-      });
+    }
+  }
+  catch(err){
+    logger.blog_logger.log('error','Error: ',err)
+    res.status(500).send(err);
   }
 });
 
-// admin - get all blogs
-router.get("/getallblog/:id", authAdmin(), authenticateToken , customRedisRateLimiter({ secondsWindow: 5, allowedHits: 1 }) , async (req, res) => {
-  let data = await redisClient.get("getallblog");
+// admin - get all users blogs
+router.get("/getAllBlogs/:id", authRole('admin'), authenticateToken, async (req, res) => {
+  try{
+    let data = await redisClient.get("getallblog");
 
-  if (data) {
-    return res.json(JSON.parse(data));
-  } else {
-    await blog.findAll()
-      .then((data) => {
-        redisClient.setEx("getallblog",DEFAULT_EXPIRATION,JSON.stringify(data));
-        res.status(200).send(data);
-      })
-      .catch((err) => {
-        res.status(400).send(err);
-      });
+    if (data) {
+      return res.json(JSON.parse(data));
+    } 
+    else {
+      await blog.findAll()
+        .then((data) => {
+          redisClient.setEx("getAllBlogs",DEFAULT_EXPIRATION,JSON.stringify(data));
+          res.status(200).send(data);
+        })
+    }
   }
+  catch(err){
+    logger.blog_logger.log('error','Error: ',err)
+    res.status(500).send(err);
+  }  
 });
 
 // admin update non-admin data
-router.put("/updateUser/:id", authAdmin(), authenticateToken, customRedisRateLimiter({ secondsWindow: 5, allowedHits: 1 }) , adminUpdateUserValidator, async (req, res) => {
-  const update_id = req.body.id;
-  let finduser = await users.findOne({ where: { id: update_id } });
-  finduser = finduser.toJSON();
+router.put("/updateUser/:id", authRole('admin'), authenticateToken, userSchemaValidator, async (req, res) => {
+  try{
+    const user_id = req.body.id;
+    await users.findOne({ where: { id: user_id, role: 'basic' } })
+    .then( async (finduser)=>{
+      if(!finduser){
+        return res.sendStatus(404);
+      }
+      
+      const data = {
+        name: req.body.name,
+        email: req.body.email,  
+      };
 
-  if (finduser.role !== "admin"){
-    const data = {
-      id: req.body.id,
-      name: req.body.name,
-      email: req.body.email,
-    };
-    await users.update(data, { where: { id: update_id } })
+      await users.update(data, { where: { id: user_id } })
       .then((value) => {
-        blog.update(data, { where: { id: update_id } })
         res.status(200).send(`Data get Updated of ${data.name} `)
       })
-      .catch((err) => {
-        logger.blog_logger.log('error',"Error: "+err)
-        res.status(400).send(err);
-      });
-    } else {
-      res.status(403).send("you cannot delete other Admin user ");
-    }
-  });
-
-  //  admin delete non-admin data
-  router.delete("/deleteUser/:id", authAdmin(), authenticateToken, admindeleteUserValidator, customRedisRateLimiter({ secondsWindow: 5, allowedHits: 1 }) , async (req, res) => {
-  const delete_id = req.body.id;
-  let finduser = await users.findOne({ where: { id: delete_id } });
-  finduser = finduser.toJSON();
-  
-  if (finduser.role !== "admin") {
-    await users.destroy({ where: { id: delete_id } })
-    .then((value) => {
-      blog.destroy({ where: { id: delete_id } })
-      res.status(200).send(`Data get Deleted of ${finduser.name}`)
     })
-    .catch((err) => {
-      logger.blog_logger.log('error',"Error: "+err)
-      res.status(400).send(err);
-    });
-  } else {
-    res.send("you cannot delete other Admin user ");
+  }
+  catch(err){
+    logger.blog_logger.log('error','Error: ',err)
+    res.status(500).send(err);
+  }
+});
+
+//  admin delete non-admin data
+router.delete("/deleteUser/:id", authRole('admin'), authenticateToken, userSchemaValidator, async (req, res) => {
+  try {
+    const delete_id = req.body.id;
+    await users.findOne({ where: { id: delete_id, role: "basic" } })
+      .then(async (user) => {
+        if (!user) {
+          return res.status(404).send("No User Found");
+        }
+
+        blog.findOne({ where: { userId: delete_id } })
+          .then(async (blogData) => {
+            if (!blogData) {
+              users.destroy({ where: { id: delete_id } }).then((value) => {
+                return res.status(200).send(`Data get Deleted `);
+              });
+            }
+            else{
+              blog.destroy({ where: { userId: delete_id } }).then(() => {
+                users.destroy({ where: { id: delete_id } }).then((value) => {
+                  return res.status(200).send(`User and his blogs get Deleted `);
+                });
+              });
+            }
+          });
+      });
+  } 
+  catch (err) {
+    logger.blog_logger.log("error", "Error: ", err);
+    res.status(500).send(err);
   }
 });
 

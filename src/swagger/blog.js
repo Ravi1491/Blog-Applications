@@ -3,7 +3,7 @@
 // get all users post
 /**
  * @swagger
- * /basic/getblogs/{id}:
+ * /basic/getAllPost/{id}:
  *   get:
  *     summary: Returns the list of all basic users
  *     parameters:
@@ -29,7 +29,7 @@
 // User create blog
 /**
  * @swagger
- * /basic/create/{id}:
+ * /basic/createPost/{id}:
  *  post:
  *    description: Use to update user
  *    parameters:
@@ -44,7 +44,7 @@
  *      content:
  *        application/json:
  *          schema:
- *            $ref: '#components/schemas/postblog'
+ *            $ref: '#components/schemas/createblog'
  *    responses:
  *      '200':
  *        description: blog is succesfully updated
@@ -53,13 +53,13 @@
  *            schema:
  *              type: array
  *              items:
- *                $ref: '#components/schemas/blog'
+ *                $ref: '#components/schemas/Blog'
  */
 
 // user can update blog
 /**
  * @swagger
- * /basic/updateBlog/{id}:
+ * /basic/updatePost/{id}:
  *  put:
  *    description: Use to update user
  *    parameters:
@@ -74,7 +74,7 @@
  *      content:
  *        application/json:
  *          schema:
- *            $ref: '#components/schemas/postblog'
+ *            $ref: '#components/schemas/createblog'
  *    responses:
  *      '200':
  *        description: blog is succesfully updated
@@ -83,13 +83,13 @@
  *            schema:
  *              type: array
  *              items:
- *                $ref: '#components/schemas/blog'
+ *                $ref: '#components/schemas/Blog'
  */
 
 // user delete
 /**
  * @swagger
- * /basic/deleteBlog/{id}:
+ * /basic/deletePost/{id}:
  *  delete:
  *    description: Use to update user
  *    parameters:
@@ -113,5 +113,5 @@
  *            schema:
  *              type: array
  *              items:
- *                $ref: '#components/schemas/blog'
+ *                $ref: '#components/schemas/Blog'
  */

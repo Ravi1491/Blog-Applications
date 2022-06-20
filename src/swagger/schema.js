@@ -8,8 +8,6 @@
  *      signup:
  *        type: object
  *        properties:
- *          id:
- *            type: number
  *          name:
  *            type: string
  *          email:
@@ -37,6 +35,21 @@
  * @swagger
  *  components:
  *    schemas:
+ *      changePassword:
+ *        type: object
+ *        properties:
+ *          email:
+ *            type: string
+ *          oldPassword:
+ *            type: string
+ *          newPassword:
+ *            type: string
+ */
+
+/**
+ * @swagger
+ *  components:
+ *    schemas:
  *      updateUser:
  *        type: object
  *        properties:
@@ -55,8 +68,8 @@
  *      logout:
  *        type: object
  *        properties:
- *          token:
- *            type: string
+ *          id:
+ *            type: number
  *          
  */
 
@@ -69,17 +82,19 @@
  *        properties:
  *          id:
  *            type: number
- *          name:
+ *          title:
  *            type: string
- *          blog_post:
+ *          post:
  *            type: string
+ *          userId:
+ *            type: number
  */
 
 /**
  * @swagger
  *  components:
  *    schemas:
- *      postblog:
+ *      createblog:
  *        type: object
  *        properties:
  *          title:

@@ -11,11 +11,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      blog.belongsTo(models.users);
+      models.users.hasMany(blog)
     }
   }
   blog.init({
-    name: DataTypes.STRING,
-    blog_post: DataTypes.STRING
+    title: DataTypes.STRING,
+    post: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'blog',

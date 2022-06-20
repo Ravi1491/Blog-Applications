@@ -10,7 +10,7 @@ const swaggerOptions = {
         },
         servers: [
           {
-            api: "http://localhost:3000/",
+            api: "http://localhost:8080/",
           },
         ],
       },

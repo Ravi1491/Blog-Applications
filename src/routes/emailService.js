@@ -7,7 +7,7 @@ const logger = require('../../utils/logger')
 
 const sendMailQueue = new Queue("Email");
 
-// send mail to all users
+// send test mail to all basic users
 router.get("/send", async (req, res) => {
   try {
     let emailArr = [];
@@ -26,7 +26,7 @@ router.get("/send", async (req, res) => {
 
       const options = {
         delay: 10000,
-        attempts: 1,
+        attempts: 2,
       };
       sendMailQueue.add(data, options);
     });
@@ -39,8 +39,9 @@ router.get("/send", async (req, res) => {
       );
     });
 
-    res.status(200).send("Mail Sent Successfully");
-  } catch (err) {
+    res.status(200).send("Mails Sent Successfully");
+  } 
+  catch (err) {
     logger.blog_logger.log("error", "Error: ", err);
     res.status(500).send(err);
   }
@@ -79,7 +80,8 @@ router.get("/perodicPassChange", async (req, res) => {
     });
 
     res.status(200).send("Mail sent successfully");
-  } catch (err) {
+  }
+  catch (err) {
     logger.blog_logger.log("error", "Error: ", err);
     res.status(500).send(err);
   }

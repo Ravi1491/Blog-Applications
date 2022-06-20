@@ -1,11 +1,12 @@
 {
-  "name": "new-folder",
+  "name": "blog-application",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon app.js",
     "user-model": "npx sequelize-cli model:generate --name users --attributes name:string,email:string,password:string,role:string,refreshtoken:string",
-    "blog-model": "npx sequelize-cli model:generate --name blog --attributes name:string,blog_post:string",
+    "blog-model": "npx sequelize-cli model:generate --name blog --attributes title:string,post:string",
     "user-seed": "npx sequelize-cli seed:generate --name users",
     "blog-seed": "npx sequelize-cli seed:generate --name blog",
     "seed": "npx sequelize-cli db:seed:all",
@@ -30,6 +31,9 @@
     "express-session": "^1.17.3",
     "graphql": "^15.8.0",
     "graphql-date": "^1.0.3",
+    "graphql-subscriptions": "^2.0.0",
+    "graphql-tag": "^2.12.6",
+    "graphql-tools": "^8.2.12",
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.3",
@@ -42,6 +46,7 @@
     "pg-hstore": "^2.3.4",
     "redis": "^4.1.0",
     "sequelize": "^6.20.1",
+    "subscriptions-transport-ws": "^0.11.0",
     "swagger-jsdoc": "^6.2.1",
     "swagger-ui-express": "^4.4.0",
     "winston": "^3.7.2"

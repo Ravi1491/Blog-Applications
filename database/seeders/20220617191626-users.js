@@ -11,13 +11,16 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-    await queryInterface.bulkInsert('blogs', [{
-    name: "Alex",
-    blog_post: `[{"title":"Alex blog 1","content":"Alex post 1"},{"title":"Alex blog 2","content":"Alex post 2"}]`,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }]);
-},
+    await queryInterface.bulkInsert('users', [{
+      name: "Alex",
+      email: "Alex@example.com", 
+      password: "password",
+      role: "basic",
+      refreshtoken: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }]);
+  },
 
   async down (queryInterface, Sequelize) {
     /**
@@ -26,6 +29,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete('blogs', null, {});
+     await queryInterface.bulkDelete('users', null, {});
   }
 };
