@@ -3,7 +3,6 @@ const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const swaggerOptions = require("./src/swagger/swagger");
 require("dotenv").config();
-// require("./src/auth/passport");
 
 const app = express();
 app.use(express.json());

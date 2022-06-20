@@ -120,7 +120,6 @@ router.put("/updatePost/:id", authRole('basic') , authenticateToken, blogSchemaV
 // user delete his blog
 router.delete("/deletePost/:id", authRole('basic') , authenticateToken, blogSchemaValidator, async (req, res) => {
   try{
-    console.log(req.params.id);
     await blog.findOne({ 
       where: { 
         userId: req.params.id, 

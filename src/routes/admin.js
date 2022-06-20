@@ -99,7 +99,7 @@ router.delete("/deleteUser/:id", authRole('admin'), authenticateToken, userSchem
             else{
               blog.destroy({ where: { userId: delete_id } }).then(() => {
                 users.destroy({ where: { id: delete_id } }).then((value) => {
-                  return res.status(200).send(`Data get Deleted `);
+                  return res.status(200).send(`User and his blogs get Deleted `);
                 });
               });
             }
