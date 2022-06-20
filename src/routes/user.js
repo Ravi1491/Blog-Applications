@@ -38,7 +38,8 @@ router.post("/signup", userSchemaValidator , async (req, res) => {
           res.status(200).send(`${name} - Successfully Registered`);
         });
       });
-  } catch (err) {
+  } 
+  catch (err) {
     logger.blog_logger.log("error", "Error: ", err);
     res.status(500).send(err);
   }
@@ -59,7 +60,8 @@ router.get("/refreshToken/:id", async (req, res) => {
           res.json({ accessToken: accessToken });
         })
       })
-  }catch(err){
+  }
+  catch(err){
     logger.blog_logger.log("error", "Error: ", err);
     res.status(500).send(err);
   }
@@ -90,7 +92,8 @@ router.post("/login", userSchemaValidator , async (req, res) => {
           res.status(403).send("Invalid Email or Password");
         }
       })
-  } catch(err){
+  } 
+  catch(err){
     logger.blog_logger.log("error", "Error: ", err);
     res.status(500).send(err);
   }
@@ -116,7 +119,8 @@ router.put("/changePass", userSchemaValidator, async function (req, res) {
         );
         res.status(200).send(`${userWithEmail.name} - Password changed Successfully `);
       });
-  } catch(err) {
+  } 
+  catch(err) {
     logger.blog_logger.log('error','Error: ',err)
     res.status(500).send(err);
   }
@@ -133,7 +137,8 @@ router.delete("/logout/:id" , authenticateToken , async (req, res) => {
         }
         res.status(403).send(` ${user_data.name} Successfully Logout`);
       })
-  }catch(err){
+  }
+  catch(err){
     logger.blog_logger.log('error','Error: ',err)
     res.status(500).send(err);
   }

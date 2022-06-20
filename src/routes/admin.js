@@ -18,7 +18,8 @@ router.get("/getAllUser/:id", authRole('admin'), authenticateToken, customRedisR
 
     if (data) {
       return res.json(JSON.parse(data));
-    } else {
+    } 
+    else {
       await users.findAll({ where: { 
         role: "basic" 
       }})
@@ -27,7 +28,8 @@ router.get("/getAllUser/:id", authRole('admin'), authenticateToken, customRedisR
         res.status(200).send(user);
       })
     }
-  }catch(err){
+  }
+  catch(err){
     logger.blog_logger.log('error','Error: ',err)
     res.status(500).send(err);
   }
@@ -40,14 +42,16 @@ router.get("/getAllBlogs/:id", authRole('admin'), authenticateToken, async (req,
 
     if (data) {
       return res.json(JSON.parse(data));
-    } else {
+    } 
+    else {
       await blog.findAll()
         .then((data) => {
           redisClient.setEx("getAllBlogs",DEFAULT_EXPIRATION,JSON.stringify(data));
           res.status(200).send(data);
         })
     }
-  }catch(err){
+  }
+  catch(err){
     logger.blog_logger.log('error','Error: ',err)
     res.status(500).send(err);
   }  
@@ -73,7 +77,8 @@ router.put("/updateUser/:id", authRole('admin'), authenticateToken, userSchemaVa
         res.status(200).send(`Data get Updated of ${data.name} `)
       })
     })
-  }catch(err){
+  }
+  catch(err){
     logger.blog_logger.log('error','Error: ',err)
     res.status(500).send(err);
   }
@@ -105,7 +110,8 @@ router.delete("/deleteUser/:id", authRole('admin'), authenticateToken, userSchem
             }
           });
       });
-  } catch (err) {
+  } 
+  catch (err) {
     logger.blog_logger.log("error", "Error: ", err);
     res.status(500).send(err);
   }

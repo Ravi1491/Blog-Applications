@@ -17,7 +17,8 @@ router.get("/getAllPost/:id", authRole('basic') , authenticateToken, customRedis
 
     if(data){
       return res.json(JSON.parse(data))
-    } else{
+    } 
+    else{
       await blog.findAll({ where: { 
         userId: req.params.id,
       }})
@@ -37,7 +38,8 @@ router.get("/getAllPost/:id", authRole('basic') , authenticateToken, customRedis
         res.status(200).send(allPostData);
       })
     }
-  }catch(err){
+  }
+  catch(err){
     logger.blog_logger.log('error','Error: ',err)
     res.status(500).send(err);
   }
@@ -50,7 +52,8 @@ router.get("/getPost/:id", authRole('basic') , authenticateToken, blogSchemaVali
 
     if(data){
       return res.json(data)
-    } else {
+    } 
+    else {
       await blog.findOne({ where: { 
         userId: req.params.id, 
         title: req.body.title 
@@ -59,7 +62,8 @@ router.get("/getPost/:id", authRole('basic') , authenticateToken, blogSchemaVali
         redisClient.setEx('getPost', DEFAULT_EXPIRATION,data.post)
         res.status(200).send(data.post);
       })
-  }}catch(err){
+  }}
+  catch(err){
     logger.blog_logger.log('error','Error: ',err)
     res.status(500).send(err);
   }
@@ -82,7 +86,8 @@ router.post("/createPost/:id", authRole('basic') , authenticateToken, blogSchema
       redisClient.setEx('getPost', DEFAULT_EXPIRATION,data.post)
       res.status(200).send("User Blog Successfully Created")
     })
-  }catch(err){
+  }
+  catch(err){
     logger.blog_logger.log('error','Error: ',err)
     res.status(500).send(err);
   }
@@ -111,7 +116,8 @@ router.put("/updatePost/:id", authRole('basic') , authenticateToken, blogSchemaV
         res.status(200).send("Blog updated successfully");
       })
     })
-  }catch(err){
+  }
+  catch(err){
     logger.blog_logger.log('error','Error: ',err)
     res.status(500).send(err);
   }
@@ -135,7 +141,8 @@ router.delete("/deletePost/:id", authRole('basic') , authenticateToken, blogSche
         res.status(200).send("Blog deleted successfully");
       })
     })
-  }catch(err){
+  }
+  catch(err){
     logger.blog_logger.log('error','Error: ',err)
     res.status(500).send(err);
   }

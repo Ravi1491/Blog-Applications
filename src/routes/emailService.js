@@ -40,7 +40,8 @@ router.get("/send", async (req, res) => {
     });
 
     res.status(200).send("Mails Sent Successfully");
-  } catch (err) {
+  } 
+  catch (err) {
     logger.blog_logger.log("error", "Error: ", err);
     res.status(500).send(err);
   }
@@ -79,7 +80,8 @@ router.get("/perodicPassChange", async (req, res) => {
     });
 
     res.status(200).send("Mail sent successfully");
-  } catch (err) {
+  }
+  catch (err) {
     logger.blog_logger.log("error", "Error: ", err);
     res.status(500).send(err);
   }
