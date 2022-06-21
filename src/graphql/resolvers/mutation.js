@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 
 const MutationResolvers = {
   Mutation: {
+    // Admin update the basic users data
     updateUser: async (parent, args) => {
       let msg;
       await users.findOne({ 
@@ -14,9 +15,7 @@ const MutationResolvers = {
         } 
       })
       .then(async (finduser) => {
-        if (!finduser) {
-        throw new Error("User Not Found");
-        }
+        if (!finduser)  throw new Error("User Not Found");
   
         const data = {
           name: args.name,
@@ -33,6 +32,7 @@ const MutationResolvers = {
       return msg;
     },
   
+    // Admin delete the basic users data
     deleteUser: async (parent, args) => {
       let msg;
       await users.findOne({ 
@@ -55,6 +55,7 @@ const MutationResolvers = {
       return msg;
     },
   
+    // basic users create post
     createPost: async (parent, args) => {
       let msg;
       await users.findOne({ 
@@ -79,6 +80,7 @@ const MutationResolvers = {
       return msg;
     },
   
+    // basic users delete his post
     deletePost: async (parent, args) => {
       let msg;
       await blogs.findOne({
@@ -104,6 +106,7 @@ const MutationResolvers = {
       return msg;
     },
   
+    // basic users update his post
     updatePost: async (parent, args) => {
       let msg;
       await blogs.findOne({
@@ -129,6 +132,7 @@ const MutationResolvers = {
       return msg;
     },
   
+    // Signup
     signup: async (parent, args) => {
       let msg;
   
@@ -148,6 +152,7 @@ const MutationResolvers = {
       return msg;
     },
   
+    // Login
     login: async (parent, args) => {
       let msg;
   
@@ -175,6 +180,7 @@ const MutationResolvers = {
       return msg;
     },
   
+    // ChangePassword
     changePassword: async (parent, args) => {
       await users.findOne({ where: { email: args.email } })
         .then(async (userWithEmail) => {

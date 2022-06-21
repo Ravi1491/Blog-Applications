@@ -3,6 +3,7 @@ const blogs = require("../../models").blog;
 
 const QueryResolvers = {
   Query: {
+    // Admin get all basic users data
     async getAllUsers() {
       let userData;
 
@@ -14,6 +15,7 @@ const QueryResolvers = {
       return userData;
     },
 
+    // Admin access all blogs data
     async getAllBlogs() {
       let userData;
 
@@ -25,6 +27,7 @@ const QueryResolvers = {
       return userData;
     },
 
+    // basic user get his all blogs
     getAllPost: async (parent, args) => {
       let allPostData = [];
 
@@ -49,6 +52,7 @@ const QueryResolvers = {
       return allPostData;
     },
 
+    // basic users get particular blog
     getPost: async (parent, args) => {
       let post;
       await blogs
