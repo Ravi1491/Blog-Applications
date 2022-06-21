@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 
+// It will check whether the user is login or not
 function authenticateToken(req, res, next) {
   const id = req.params.id;
   const authHeader = req.headers["authorization"];

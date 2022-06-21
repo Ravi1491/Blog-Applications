@@ -8,7 +8,7 @@ router.use("/basic", require("./blog"));
 
 router.use("/email", require("./emailService"));
 
-// router.use('/graphql', require('./graphql/index'))
+router.use('/graphql', require('../graphql/index'))
 
 router.get("/home", (req, res) => {
   res.status(200).send("HOME PAGE");

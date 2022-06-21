@@ -1,5 +1,6 @@
 const joi = require("joi");
 
+// Schema Validator for User Table
 const userSchemaValidator = (req, res, next) => {
   const schema = joi.object().keys({
     id: joi.number().integer().min(1).max(100),
@@ -22,6 +23,7 @@ const userSchemaValidator = (req, res, next) => {
   }
 };
 
+// Schema Validator for Blog Table
 const blogSchemaValidator = (req, res, next) => {
   const schema = joi.object().keys({
     id: joi.number().integer().min(1).max(100),

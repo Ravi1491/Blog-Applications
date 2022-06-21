@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { authRole } = require("../middleware/auth");
+const { authRole } = require("../middleware/roleAccess");
 const { authenticateToken } = require("../middleware/jwtToken");
 const { blogSchemaValidator } = require("../validations/schemaValidator");
 const blog = require("../models").blog;

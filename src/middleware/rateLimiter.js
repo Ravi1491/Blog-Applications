@@ -1,5 +1,6 @@
 const redis = require("../../utils/redis");
 
+// RateLimiter will limit the API time callout
 function customRedisRateLimiter({ secondsWindow, allowedHits }) {
   return async function (req, res, next) {
     const ip = (

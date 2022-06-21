@@ -91,7 +91,8 @@ router.post("/login", userSchemaValidator , async (req, res) => {
         } else {
           res.status(403).send("Invalid Email or Password");
         }
-      })
+      }
+    )
   } 
   catch(err){
     logger.blog_logger.log("error", "Error: ", err);
