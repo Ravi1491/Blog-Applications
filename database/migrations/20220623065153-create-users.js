@@ -12,14 +12,15 @@ module.exports = {
         type: Sequelize.STRING
       },
       email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
+        type: Sequelize.STRING
       },
       password: {
         type: Sequelize.STRING
       },
       role: {
+        type: Sequelize.STRING
+      },
+      accesstoken: {
         type: Sequelize.STRING
       },
       refreshtoken: {

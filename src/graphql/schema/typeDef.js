@@ -37,22 +37,24 @@ const typeDefs = gql`
 
   #Query
   type Query {
-    getAllUsers: [UserType!]!
-    getAllBlogs: [BlogType!]!
-    getAllPost(userId: Int!): [GetAllPostType!]!
-    getPost(userId: Int!, title: String!): GetPostType!
+    getAllUsers(id: Int!): [UserType!]!
+    getAllBlogs(id: Int!): [BlogType!]!
+    getAllPost(id: Int!): [GetAllPostType!]!
+    getPost(id: Int!, title: String!): GetPostType!
   }
-
+  
   #Mutation
   type Mutation {
-    updateUser(id: Int!, name: String!, email: String!): MessageType!
-    deleteUser(id: Int!): MessageType!
+    updateUser(adminId: Int!, id: Int!, name: String!, email: String!): MessageType!
+    deleteUser(adminId: Int!, id: Int!): MessageType!
     createPost(id: Int!, title: String!, post: String!): MessageType!
-    deletePost(userId: Int!, title: String!): MessageType!
-    updatePost(userId: Int!, title: String!, post: String!): MessageType!
+    deletePost(id: Int!, title: String!): MessageType!
+    updatePost(id: Int!, title: String!, post: String!): MessageType!
     signup(name: String!, email: String!, password: String!, role: String!): MessageType!
     login(email: String!, password: String!): MessageType!
     changePassword(email: String!, oldPassword: String!, newPassword: String!): MessageType!
+    refreshToken(id: Int!): MessageType!
+    logout(id: Int!): MessageType!
   }
   
 `;

@@ -1,12 +1,16 @@
 const users = require("../../models").users;
 const blogs = require("../../models").blog;
 const bcrypt = require("bcrypt");
+const { combineResolvers } = require("graphql-resolvers");
+const { userSchemaValidator, blogSchemaValidator } = require('../../middleware/schemaValidator');
+const { authRoleAdmin, authRole } = require('../../middleware/roleAccess');
+const { authenticateToken } = require('../../middleware/jwtToken');
 const jwt = require("jsonwebtoken");
 
 const MutationResolvers = {
   Mutation: {
     // Admin update the basic users data
-    updateUser: async (parent, args) => {
+    updateUser: combineResolvers(authenticateToken,userSchemaValidator, authRoleAdmin('admin'), async (parent, args) => {
       let msg;
       await users.findOne({ 
         where: { 
@@ -28,12 +32,15 @@ const MutationResolvers = {
             message: "User data updated successfully",
           };
         });
-      });
+      })
+      .catch((err)=>{
+        throw new Error(err)
+      })
       return msg;
-    },
+    }),
   
     // Admin delete the basic users data
-    deleteUser: async (parent, args) => {
+    deleteUser: combineResolvers(authenticateToken,userSchemaValidator, authRoleAdmin('admin'), async (parent, args) => {
       let msg;
       await users.findOne({ 
         where: { 
@@ -50,17 +57,20 @@ const MutationResolvers = {
   
           users.destroy({ where: { id: args.id } });
           msg = { successful: true, message: "User Deleted" };
-        });
+        })
+        .catch((err)=>{
+          throw new Error(err)
+        })
   
       return msg;
-    },
+    }),
   
     // basic users create post
-    createPost: async (parent, args) => {
+    createPost: combineResolvers(authenticateToken, blogSchemaValidator, authRole('basic'), async (parent, args) => {
       let msg;
       await users.findOne({ 
         where: { 
-            id: args.id 
+          id: args.id 
         } 
       })
         .then(async (userData) => {
@@ -78,14 +88,14 @@ const MutationResolvers = {
         });
   
       return msg;
-    },
+    }),
   
     // basic users delete his post
-    deletePost: async (parent, args) => {
+    deletePost: combineResolvers(authenticateToken, blogSchemaValidator, authRole('basic'),async (parent, args) => {
       let msg;
       await blogs.findOne({
         where: {
-          userId: args.userId,
+          userId: args.id,
           title: args.title,
         },
       })
@@ -94,24 +104,27 @@ const MutationResolvers = {
   
           await blogs.destroy({
             where: {
-              userId: args.userId,
+              userId: args.id,
               title: args.title,
             },
           })
             .then((datas) => {
               msg = { successful: true, message: "Delete Post Successfully" };
             });
-        });
+        })
+        .catch((err)=>{
+          throw new Error(err)
+        })
   
       return msg;
-    },
+    }),
   
     // basic users update his post
-    updatePost: async (parent, args) => {
+    updatePost: combineResolvers(authenticateToken, blogSchemaValidator, authRole('basic'), async (parent, args) => {
       let msg;
       await blogs.findOne({
         where: {
-          userId: args.userId,
+          userId: args.id,
           title: args.title,
         },
       })
@@ -120,20 +133,23 @@ const MutationResolvers = {
   
           await blogs.update({ post: args.post },{
             where: {
-              userId: args.userId,
+              userId: args.id,
               title: args.title,
             },
           })
             .then(async () => {
               msg = { successful: true, message: "Blog updated successfully" };
             });
-        });
+        })
+        .catch((err)=>{
+          throw new Error(err)
+        })
   
       return msg;
-    },
+    }),
   
     // Signup
-    signup: async (parent, args) => {
+    signup: combineResolvers(userSchemaValidator, async (parent, args) => {
       let msg;
   
       await users.findOne({ where: { email: args.email } })
@@ -147,13 +163,16 @@ const MutationResolvers = {
             role: args.role,
           });
           msg = { successful: true, message: "Successfully Registered" };
-        });
+        })
+        .catch((err)=>{
+          throw new Error(err)
+        })
   
       return msg;
-    },
+    }),
   
     // Login
-    login: async (parent, args) => {
+    login: combineResolvers(userSchemaValidator, async (parent, args) => {
       let msg;
   
       await users.findOne({ where: { email: args.email } })
@@ -167,6 +186,7 @@ const MutationResolvers = {
             const refreshToken = jwt.sign(user,process.env.REFRESH_TOKEN_SECERT,{ expiresIn: "7d" });
   
             users.update({
+              accesstoken: accessToken,
               refreshtoken: refreshToken,
               },{
               where: { id: userWithEmail.id },
@@ -176,12 +196,15 @@ const MutationResolvers = {
           } else {
             msg = { successful: false, message: "Invalid Email or Password" };
           }
-        });
+        })
+        .catch((err)=>{
+          throw new Error(err)
+        })
       return msg;
-    },
+    }),
   
     // ChangePassword
-    changePassword: async (parent, args) => {
+    changePassword: combineResolvers(userSchemaValidator, async (parent, args) => {
       await users.findOne({ where: { email: args.email } })
         .then(async (userWithEmail) => {
           if (!(await bcrypt.compare(args.oldPassword, userWithEmail.password))) {
@@ -197,11 +220,65 @@ const MutationResolvers = {
           );
   
           msg = { successful: true, message: "Password successfully Updated" };
-        });
+        })
+        .catch((err)=>{
+          throw new Error(err)
+        })
   
       return msg;
+    }),
+
+    // refreshtoken
+    refreshToken: async (parent, args) => {
+      let msg;
+      await users.findOne({ where: { id: args.id } })
+        .then(async (user_data)=>{
+          
+          if (user_data == null) throw new Error("Unauthorized ")
+          if (!user_data.refreshtoken) throw new Error("Forbidden ")
+  
+          jwt.verify(user_data.refreshtoken,process.env.REFRESH_TOKEN_SECERT,(err, user) => {
+            if (err) throw new Error("Forbidden ")
+
+            const userEmail = { email: user_data.email };
+            const accessToken = jwt.sign(userEmail,process.env.ACCESS_TOKEN_SECERT,{ expiresIn: "8h" });
+            
+            users.update({ accesstoken: accessToken },{
+              where: {
+                id: args.id
+              },
+            })
+
+          })
+          msg = { successful: true, message: "AccessToken Updated" };
+        })
+        .catch((err)=>{
+          throw new Error(err)
+        })
+      return msg 
     },
-}
+
+    // Logout
+    logout: combineResolvers(authenticateToken, async (parent,args) => {
+      let msg;
+      await users.findOne({ where: { id: args.id } })
+      .then(async(user_data)=>{
+        if (user_data.refreshtoken) {
+          users.update({ 
+            refreshtoken: null, 
+            accesstoken: null 
+          }, { 
+            where: { id: args.id } 
+          });
+        }
+        msg = { successful: true, message: "Successfully Logout" };
+      })
+      .catch((err)=>{
+        throw new Error(err)
+      })
+      return msg
+    })
+  }
 }
 
 module.exports = { MutationResolvers }

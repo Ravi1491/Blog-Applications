@@ -1,10 +1,13 @@
 const users = require("../../models").users;
 const blogs = require("../../models").blog;
+const { combineResolvers } = require("graphql-resolvers");
+const { authRole } = require('../../middleware/roleAccess');
+const { authenticateToken } = require('../../middleware/jwtToken');
 
 const QueryResolvers = {
   Query: {
     // Admin get all basic users data
-    async getAllUsers() {
+    getAllUsers: combineResolvers(authenticateToken, authRole('admin'), async ()=> {
       let userData;
 
       await users.findAll({ where: { role: "basic" } }).then((data) => {
@@ -13,10 +16,10 @@ const QueryResolvers = {
       });
 
       return userData;
-    },
+    }),
 
     // Admin access all blogs data
-    async getAllBlogs() {
+    getAllBlogs: combineResolvers(authenticateToken, authRole('admin'),async ()=> {
       let userData;
 
       await blogs.findAll().then((data) => {
@@ -25,16 +28,16 @@ const QueryResolvers = {
       });
 
       return userData;
-    },
+    }),
 
     // basic user get his all blogs
-    getAllPost: async (parent, args) => {
+    getAllPost: combineResolvers(authenticateToken, authRole('basic'), async (parent, args) => {
       let allPostData = [];
 
       await blogs
         .findAll({
           where: {
-            userId: args.userId,
+            userId: args.id,
           },
         })
         .then((data) => {
@@ -50,15 +53,15 @@ const QueryResolvers = {
         });
 
       return allPostData;
-    },
+    }),
 
     // basic users get particular blog
-    getPost: async (parent, args) => {
+    getPost: combineResolvers(authenticateToken, authRole('basic'), async (parent, args) => {
       let post;
       await blogs
         .findOne({
           where: {
-            userId: args.userId,
+            userId: args.id,
             title: args.title,
           },
         })
@@ -69,7 +72,7 @@ const QueryResolvers = {
           throw new Error("Post not found");
         });
       return { post: post };
-    },
+    }),
   },
 };
 
